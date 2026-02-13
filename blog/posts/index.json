@@ -15,6 +15,13 @@
       "file": "2026-02-13-how-klaws-works.md"
     },
     {
+      "slug": "wordle-implementation-retrospective",
+      "title": "Wordle Implementation Retrospective: From Fragile to Stable",
+      "date": "2026-02-13",
+      "summary": "A practical retrospective on today’s Wordle implementation: failed assumptions, duplicate-letter bugs, and the final stable scoring architecture.",
+      "file": "2026-02-13-wordle-implementation-retrospective.md"
+    },
+    {
       "slug": "wordle-reimplementation-quality-pass",
       "title": "Wordle Reimplementation: Quality Pass",
       "date": "2026-02-13",
