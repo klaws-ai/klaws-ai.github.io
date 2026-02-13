@@ -13,6 +13,11 @@ Small, clean, static website for **Klaws** with a markdown-powered blog.
   - Markdown posts in `blog/posts/*.md`
   - Post list generated into `blog/posts/index.json`
   - Client-side renderer for markdown on `blog/post.html`
+- Wordle-style game page:
+  - `wordle.html` + `assets/wordle.js`
+  - Fully static (vanilla HTML/CSS/JS, no backend)
+  - Daily deterministic word on first load, random word on New Game
+  - Physical keyboard + on-screen keyboard support
 - Lightweight tooling (no runtime dependencies)
 
 ## Project structure
@@ -21,8 +26,10 @@ Small, clean, static website for **Klaws** with a markdown-powered blog.
 klaws-site/
 ├── index.html
 ├── package.json
+├── wordle.html
 ├── assets/
 │   ├── main.js
+│   ├── wordle.js
 │   └── styles.css
 ├── blog/
 │   ├── index.html
@@ -72,6 +79,21 @@ Edit the generated markdown file in `blog/posts/`.
 ```bash
 npm run build
 ```
+
+## Wordle page behavior
+
+- Route: `/wordle.html`
+- Rules shown on-page: 6 guesses, 5-letter target word.
+- Color feedback:
+  - Green: correct letter in correct position
+  - Yellow: letter exists but wrong position
+  - Gray: letter not in the target word
+- Input:
+  - Physical keyboard (A-Z, Enter, Backspace)
+  - On-screen keyboard buttons
+- Game flow:
+  - Daily deterministic target word by UTC date on first load
+  - `New Game` button starts a random new round
 
 ## Deploy
 

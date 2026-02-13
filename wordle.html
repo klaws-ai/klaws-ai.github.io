@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Klaws Wordle</title>
+    <meta name="description" content="Play a lightweight Wordle-style game on the Klaws site." />
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container nav-wrap">
+        <a class="brand" href="./index.html">Klaws</a>
+        <nav>
+          <a href="./index.html#about">About</a>
+          <a href="./blog/index.html">Blog</a>
+          <a class="btn btn-small" href="./wordle.html">Wordle</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="wordle-main">
+      <div class="container">
+        <h1>Wordle (Klaws Edition)</h1>
+        <p class="lead">Guess the 5-letter word in 6 tries. Green = correct spot, yellow = in word wrong spot, gray = not in word.</p>
+
+        <div class="wordle-actions">
+          <button id="new-game-btn" class="btn" type="button">New Game</button>
+          <p id="game-status" class="wordle-status" aria-live="polite">Type a 5-letter word to start.</p>
+        </div>
+
+        <section aria-label="Wordle board" class="wordle-board-wrap">
+          <div id="board" class="wordle-board"></div>
+        </section>
+
+        <section aria-label="On-screen keyboard" class="wordle-kb-wrap">
+          <div id="keyboard" class="wordle-keyboard"></div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>© <span id="year"></span> Klaws</p>
+      </div>
+    </footer>
+
+    <script src="./assets/main.js"></script>
+    <script src="./assets/wordle.js"></script>
+  </body>
+</html>
