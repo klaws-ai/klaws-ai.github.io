@@ -246,13 +246,10 @@
     if (raw === 'Enter') return 'ENTER';
     if (raw === 'Backspace') return 'BACKSPACE';
     if (!/^[a-zA-Z]$/.test(raw)) return null;
-    const upper = raw.toUpperCase();
 
-    if (state.lang === 'de') {
-      if (upper === 'Y') return 'Z';
-      if (upper === 'Z') return 'Y';
-    }
-    return upper;
+    // e.key is already layout-aware (e.g., German QWERTZ emits "z" for Z keypresses).
+    // Do not remap Y/Z here, otherwise letters are double-swapped and validation breaks.
+    return raw.toUpperCase();
   }
 
   function onKey(rawKey) {
