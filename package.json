@@ -6,6 +6,7 @@
   "scripts": {
     "build": "node scripts/build-blog-index.js",
     "new:post": "node scripts/new-post.js",
+    "check:wordle-lists": "node scripts/wordle-wordlist-check.js",
     "serve": "python3 -m http.server 8080"
   }
 }

@@ -1,0 +1,6 @@
+{
+  "lastUpdatedUtc": "2026-02-13",
+  "updateIntervalDays": 14,
+  "languages": ["en", "de"],
+  "notes": "Curated common 5-letter words only. Keep locale-appropriate words simple and guessable."
+}

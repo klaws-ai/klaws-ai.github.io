@@ -1,41 +1,94 @@
 (() => {
-  const WORDS = [
-    'about','adore','agent','apple','baker','beach','blend','brain','candy','chair','charm','clean','clock','cloud','crane','dream',
-    'eager','earth','flame','fresh','frost','grape','green','heart','house','jolly','light','lucky','magic','maple','metal','night',
-    'ocean','paint','pearl','piano','pilot','plain','plane','point','pride','queen','quick','radio','river','rough','round','scale',
-    'score','shine','smart','smile','snack','sound','spark','spice','spoon','stone','storm','table','tiger','toast','trace','train',
-    'unity','vivid','water','whale','wheat','world','youth','zesty'
-  ];
-
   const MAX_GUESSES = 6;
   const WORD_LENGTH = 5;
-  const keyboardRows = [
-    ['Q','W','E','R','T','Y','U','I','O','P'],
-    ['A','S','D','F','G','H','J','K','L'],
-    ['ENTER','Z','X','C','V','B','N','M','BACKSPACE']
-  ];
+  const EPOCH_DAY = Math.floor(Date.UTC(2021, 5, 19) / 86400000);
+
+  const I18N = {
+    en: {
+      rules: 'Guess the 5-letter word in 6 tries. Green = correct spot, yellow = in word wrong spot, gray = not in word.',
+      loading: 'Loading dictionary…',
+      startDaily: 'Daily game loaded. Good luck!',
+      startRandom: 'Random game loaded. Good luck!',
+      invalidLength: 'Enter a 5-letter word.',
+      notAllowed: 'Word not in list.',
+      triesLeft: (n) => `${n} ${n === 1 ? 'try' : 'tries'} left.`,
+      win: (n) => `Great! Solved in ${n} ${n === 1 ? 'guess' : 'guesses'}.`,
+      lose: (w) => `Out of tries. The word was ${w.toUpperCase()}.`,
+      loadError: 'Could not load word lists. Please refresh.',
+      keyboard: [
+        ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+        ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+        ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'BACKSPACE']
+      ]
+    },
+    de: {
+      rules: 'Errate das Wort mit 5 Buchstaben in 6 Versuchen. Grün = richtige Position, Gelb = im Wort aber falsche Position, Grau = nicht im Wort.',
+      loading: 'Wörterbuch wird geladen…',
+      startDaily: 'Tagesspiel geladen. Viel Erfolg!',
+      startRandom: 'Zufallsspiel geladen. Viel Erfolg!',
+      invalidLength: 'Bitte ein Wort mit 5 Buchstaben eingeben.',
+      notAllowed: 'Wort nicht in der Liste.',
+      triesLeft: (n) => `${n} ${n === 1 ? 'Versuch' : 'Versuche'} übrig.`,
+      win: (n) => `Stark! In ${n} ${n === 1 ? 'Versuch' : 'Versuchen'} gelöst.`,
+      lose: (w) => `Keine Versuche mehr. Lösung: ${w.toUpperCase()}.`,
+      loadError: 'Wortlisten konnten nicht geladen werden. Bitte neu laden.',
+      keyboard: [
+        ['Q', 'W', 'E', 'R', 'T', 'Z', 'U', 'I', 'O', 'P'],
+        ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+        ['ENTER', 'Y', 'X', 'C', 'V', 'B', 'N', 'M', 'BACKSPACE']
+      ]
+    }
+  };
 
   const boardEl = document.getElementById('board');
   const keyboardEl = document.getElementById('keyboard');
   const statusEl = document.getElementById('game-status');
+  const rulesTextEl = document.getElementById('rules-text');
+  const langSelectEl = document.getElementById('language-select');
   const newGameBtn = document.getElementById('new-game-btn');
-  if (!boardEl || !keyboardEl || !statusEl || !newGameBtn) return;
+  const dailyGameBtn = document.getElementById('daily-game-btn');
 
-  let solution = '';
-  let currentRow = 0;
-  let currentGuess = '';
-  let guesses = [];
-  let finished = false;
-  const keyStates = {};
+  if (!boardEl || !keyboardEl || !statusEl || !rulesTextEl || !langSelectEl || !newGameBtn || !dailyGameBtn) return;
+
+  const state = {
+    lang: 'en',
+    answers: [],
+    allowed: new Set(),
+    solution: '',
+    currentRow: 0,
+    currentGuess: '',
+    guesses: [],
+    finished: false,
+    keyStates: {}
+  };
+
+  function setStatus(message) {
+    statusEl.textContent = message;
+  }
+
+  function dayIndex() {
+    const today = Math.floor(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()) / 86400000);
+    return today - EPOCH_DAY;
+  }
 
   function pickDailyWord() {
-    const now = new Date();
-    const daySeed = Math.floor(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) / 86400000);
-    return WORDS[daySeed % WORDS.length];
+    return state.answers[((dayIndex() % state.answers.length) + state.answers.length) % state.answers.length];
   }
 
   function pickRandomWord() {
-    return WORDS[Math.floor(Math.random() * WORDS.length)];
+    return state.answers[Math.floor(Math.random() * state.answers.length)];
+  }
+
+  async function loadWordData(lang) {
+    const [answersRes, allowedRes] = await Promise.all([
+      fetch(`./assets/wordle-data/${lang}.answers.json`, { cache: 'no-store' }),
+      fetch(`./assets/wordle-data/${lang}.allowed.json`, { cache: 'no-store' })
+    ]);
+    if (!answersRes.ok || !allowedRes.ok) throw new Error('word data fetch failed');
+
+    const [answers, allowed] = await Promise.all([answersRes.json(), allowedRes.json()]);
+    state.answers = answers;
+    state.allowed = new Set(allowed);
   }
 
   function initBoard() {
@@ -54,7 +107,7 @@
 
   function renderKeyboard() {
     keyboardEl.innerHTML = '';
-    keyboardRows.forEach((rowKeys) => {
+    I18N[state.lang].keyboard.forEach((rowKeys) => {
       const rowEl = document.createElement('div');
       rowEl.className = 'wordle-kb-row';
       rowKeys.forEach((key) => {
@@ -74,20 +127,20 @@
   function updateBoard() {
     for (let r = 0; r < MAX_GUESSES; r += 1) {
       const rowEl = boardEl.children[r];
-      const guess = guesses[r] || (r === currentRow ? currentGuess : '');
+      const guess = state.guesses[r] || (r === state.currentRow ? state.currentGuess : '');
       for (let c = 0; c < WORD_LENGTH; c += 1) {
-        const tile = rowEl.children[c];
-        tile.textContent = guess[c] ? guess[c].toUpperCase() : '';
+        rowEl.children[c].textContent = guess[c] ? guess[c].toUpperCase() : '';
       }
     }
   }
 
+  // Faithful duplicate handling: score greens first, then yellows from remaining counts.
   function evaluateGuess(guess) {
     const result = Array(WORD_LENGTH).fill('absent');
-    const remaining = solution.split('');
+    const remaining = state.solution.split('');
 
     for (let i = 0; i < WORD_LENGTH; i += 1) {
-      if (guess[i] === solution[i]) {
+      if (guess[i] === state.solution[i]) {
         result[i] = 'correct';
         remaining[i] = null;
       }
@@ -105,77 +158,97 @@
     return result;
   }
 
-  function updateKeyState(letter, state) {
-    const priority = { absent: 0, present: 1, correct: 2 };
-    const current = keyStates[letter] || 'absent';
-    if (!keyStates[letter] || priority[state] > priority[current]) keyStates[letter] = state;
+  function updateKeyState(letter, value) {
+    const rank = { absent: 0, present: 1, correct: 2 };
+    const prev = state.keyStates[letter];
+    if (!prev || rank[value] > rank[prev]) state.keyStates[letter] = value;
   }
 
-  function refreshKeyboardStates() {
+  function refreshKeyboardState() {
     keyboardEl.querySelectorAll('.wordle-key').forEach((btn) => {
       const key = btn.dataset.key;
       if (!/^[A-Z]$/.test(key)) return;
-      const state = keyStates[key.toLowerCase()];
+      const v = state.keyStates[key.toLowerCase()];
       btn.classList.remove('correct', 'present', 'absent');
-      if (state) btn.classList.add(state);
+      if (v) btn.classList.add(v);
     });
   }
 
-  function applyRowFeedback(rowIndex, states) {
+  function paintRow(rowIndex, result) {
     const rowEl = boardEl.children[rowIndex];
-    const guess = guesses[rowIndex];
+    const guess = state.guesses[rowIndex];
     for (let i = 0; i < WORD_LENGTH; i += 1) {
       const tile = rowEl.children[i];
       tile.classList.remove('correct', 'present', 'absent');
-      tile.classList.add(states[i]);
-      updateKeyState(guess[i], states[i]);
+      tile.classList.add(result[i]);
+      updateKeyState(guess[i], result[i]);
     }
-    refreshKeyboardStates();
+    refreshKeyboardState();
   }
 
-  function setStatus(msg) {
-    statusEl.textContent = msg;
-  }
+  function resetRound(useRandom = false) {
+    state.currentRow = 0;
+    state.currentGuess = '';
+    state.guesses = [];
+    state.finished = false;
+    state.keyStates = {};
+    state.solution = useRandom ? pickRandomWord() : pickDailyWord();
 
-  function finish(win) {
-    finished = true;
-    setStatus(win ? 'Nice! You solved it. Click New Game to play again.' : `Out of tries. The word was ${solution.toUpperCase()}.`);
+    initBoard();
+    renderKeyboard();
+    updateBoard();
+    setStatus(useRandom ? I18N[state.lang].startRandom : I18N[state.lang].startDaily);
   }
 
   function submitGuess() {
-    if (currentGuess.length !== WORD_LENGTH) {
-      setStatus('Enter a 5-letter word.');
+    if (state.currentGuess.length !== WORD_LENGTH) {
+      setStatus(I18N[state.lang].invalidLength);
       return;
     }
 
-    if (!WORDS.includes(currentGuess)) {
-      setStatus('Word not in list. Try another.');
+    if (!state.allowed.has(state.currentGuess)) {
+      setStatus(I18N[state.lang].notAllowed);
       return;
     }
 
-    guesses[currentRow] = currentGuess;
-    const states = evaluateGuess(currentGuess);
-    applyRowFeedback(currentRow, states);
+    state.guesses[state.currentRow] = state.currentGuess;
+    const result = evaluateGuess(state.currentGuess);
+    paintRow(state.currentRow, result);
 
-    if (currentGuess === solution) {
+    if (state.currentGuess === state.solution) {
+      state.finished = true;
+      setStatus(I18N[state.lang].win(state.currentRow + 1));
       updateBoard();
-      finish(true);
       return;
     }
 
-    currentRow += 1;
-    currentGuess = '';
+    state.currentRow += 1;
+    state.currentGuess = '';
     updateBoard();
 
-    if (currentRow >= MAX_GUESSES) {
-      finish(false);
+    if (state.currentRow >= MAX_GUESSES) {
+      state.finished = true;
+      setStatus(I18N[state.lang].lose(state.solution));
     } else {
-      setStatus(`${MAX_GUESSES - currentRow} tries left.`);
+      setStatus(I18N[state.lang].triesLeft(MAX_GUESSES - state.currentRow));
     }
   }
 
+  function normalizePhysicalKey(raw) {
+    if (raw === 'Enter') return 'ENTER';
+    if (raw === 'Backspace') return 'BACKSPACE';
+    if (!/^[a-zA-Z]$/.test(raw)) return null;
+    const upper = raw.toUpperCase();
+
+    if (state.lang === 'de') {
+      if (upper === 'Y') return 'Z';
+      if (upper === 'Z') return 'Y';
+    }
+    return upper;
+  }
+
   function onKey(rawKey) {
-    if (finished) return;
+    if (state.finished) return;
     const key = rawKey.toUpperCase();
 
     if (key === 'ENTER') {
@@ -183,50 +256,52 @@
       return;
     }
 
-    if (key === 'BACKSPACE' || key === '⌫') {
-      currentGuess = currentGuess.slice(0, -1);
+    if (key === 'BACKSPACE') {
+      state.currentGuess = state.currentGuess.slice(0, -1);
       updateBoard();
       return;
     }
 
-    if (/^[A-Z]$/.test(key) && currentGuess.length < WORD_LENGTH) {
-      currentGuess += key.toLowerCase();
+    if (/^[A-Z]$/.test(key) && state.currentGuess.length < WORD_LENGTH) {
+      state.currentGuess += key.toLowerCase();
       updateBoard();
     }
   }
 
-  function handlePhysicalKeyboard(e) {
-    const key = e.key;
-    if (key === 'Enter') {
-      e.preventDefault();
-      onKey('ENTER');
-      return;
-    }
-    if (key === 'Backspace') {
-      e.preventDefault();
-      onKey('BACKSPACE');
-      return;
-    }
-    if (/^[a-zA-Z]$/.test(key)) {
-      onKey(key);
+  async function switchLanguage(lang) {
+    state.lang = lang;
+    document.documentElement.lang = lang;
+    rulesTextEl.textContent = I18N[lang].rules;
+    setStatus(I18N[lang].loading);
+
+    try {
+      await loadWordData(lang);
+      resetRound(false);
+    } catch {
+      setStatus(I18N[lang].loadError);
     }
   }
 
-  function resetGame(random = false) {
-    solution = random ? pickRandomWord() : pickDailyWord();
-    currentRow = 0;
-    currentGuess = '';
-    guesses = [];
-    finished = false;
-    Object.keys(keyStates).forEach((k) => delete keyStates[k]);
-    initBoard();
-    renderKeyboard();
-    updateBoard();
-    setStatus('New game started. Good luck!');
-  }
+  document.addEventListener('keydown', (e) => {
+    const key = normalizePhysicalKey(e.key);
+    if (!key) return;
+    e.preventDefault();
+    onKey(key);
+  });
 
-  document.addEventListener('keydown', handlePhysicalKeyboard);
-  newGameBtn.addEventListener('click', () => resetGame(true));
+  langSelectEl.addEventListener('change', () => {
+    switchLanguage(langSelectEl.value);
+  });
 
-  resetGame(false);
+  newGameBtn.addEventListener('click', () => {
+    if (!state.answers.length) return;
+    resetRound(true);
+  });
+
+  dailyGameBtn.addEventListener('click', () => {
+    if (!state.answers.length) return;
+    resetRound(false);
+  });
+
+  switchLanguage(langSelectEl.value || 'en');
 })();

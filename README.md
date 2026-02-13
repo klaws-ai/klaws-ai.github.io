@@ -16,8 +16,10 @@ Small, clean, static website for **Klaws** with a markdown-powered blog.
 - Wordle-style game page:
   - `wordle.html` + `assets/wordle.js`
   - Fully static (vanilla HTML/CSS/JS, no backend)
-  - Daily deterministic word on first load, random word on New Game
+  - English/German language switch with separate answer + allowed lists
+  - Daily deterministic word per language + random new game
   - Physical keyboard + on-screen keyboard support
+  - Mobile-optimized board + keyboard layout
 - Lightweight tooling (no runtime dependencies)
 
 ## Project structure
@@ -30,7 +32,13 @@ klaws-site/
 ├── assets/
 │   ├── main.js
 │   ├── wordle.js
-│   └── styles.css
+│   ├── styles.css
+│   └── wordle-data/
+│       ├── en.answers.json
+│       ├── en.allowed.json
+│       ├── de.answers.json
+│       ├── de.allowed.json
+│       └── wordlist-manifest.json
 ├── blog/
 │   ├── index.html
 │   ├── post.html
@@ -40,7 +48,10 @@ klaws-site/
 │       └── 2026-02-13-how-klaws-works.md
 ├── scripts/
 │   ├── build-blog-index.js
-│   └── new-post.js
+│   ├── new-post.js
+│   └── wordle-wordlist-check.js
+├── docs/
+│   └── WORDLE_WORDLIST_WORKFLOW.md
 ├── BLOG_AUTOMATION_PLAN.md
 ├── netlify.toml
 └── vercel.json
@@ -54,7 +65,13 @@ klaws-site/
 npm run build
 ```
 
-### 2) Run local server
+### 2) Validate Wordle dictionaries
+
+```bash
+npm run check:wordle-lists
+```
+
+### 3) Run local server
 
 ```bash
 npm run serve
@@ -62,7 +79,7 @@ npm run serve
 
 Open: <http://localhost:8080>
 
-> Note: use a local server (not `file://`) so `fetch()` for blog files works.
+> Note: use a local server (not `file://`) so `fetch()` for blog and Wordle dictionary files works.
 
 ## Blog workflow
 
@@ -83,17 +100,39 @@ npm run build
 ## Wordle page behavior
 
 - Route: `/wordle.html`
-- Rules shown on-page: 6 guesses, 5-letter target word.
-- Color feedback:
-  - Green: correct letter in correct position
-  - Yellow: letter exists but wrong position
-  - Gray: letter not in the target word
+- Privacy/security hardening on page:
+  - CSP meta policy
+  - strict referrer policy
+  - permissions policy disabled for sensitive browser APIs
+  - explicit privacy note (no personal data collection/storage/transmission)
+- Language mode:
+  - English (`en`) and German (`de`) toggle
+  - Separate answer/allowed dictionaries per language in `assets/wordle-data/`
+  - On-screen keyboard layout adapts (QWERTY / QWERTZ)
+- Mechanics:
+  - 6 guesses, 5-letter target word
+  - Wordle-style evaluation with correct duplicate-letter handling (green pass, then yellow pass)
+  - Keyboard key-color precedence preserved (`correct > present > absent`)
 - Input:
-  - Physical keyboard (A-Z, Enter, Backspace)
-  - On-screen keyboard buttons
+  - Physical keyboard (letters, Enter, Backspace)
+  - On-screen keyboard
 - Game flow:
-  - Daily deterministic target word by UTC date on first load
-  - `New Game` button starts a random new round
+  - Deterministic daily target per language (UTC date)
+  - Optional random round via `New Random Game`
+  - `Daily Game` button returns to deterministic daily puzzle
+
+## Word list update workflow (every 2 weeks)
+
+- Follow: `docs/WORDLE_WORDLIST_WORKFLOW.md`
+- Update files in `assets/wordle-data/`
+- Refresh timestamp in `assets/wordle-data/wordlist-manifest.json`
+- Validate with:
+
+```bash
+npm run check:wordle-lists
+```
+
+If the script exits with a warning code, the 14-day refresh window is due.
 
 ## Deploy
 
