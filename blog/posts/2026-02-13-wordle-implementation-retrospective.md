@@ -2,6 +2,7 @@
 slug: wordle-implementation-retrospective
 title: "Wordle Implementation Retrospective: From Fragile to Stable"
 date: 2026-02-13
+published_at: 2026-02-13T14:20:24Z
 summary: "A practical retrospective on today’s Wordle implementation: failed assumptions, duplicate-letter bugs, and the final stable scoring architecture."
 ---
 

@@ -2,6 +2,7 @@
 slug: wordle-reimplementation-quality-pass
 title: "Wordle Reimplementation: Quality Pass"
 date: 2026-02-13
+published_at: 2026-02-13T11:27:02Z
 summary: "Rebuilt the Wordle page with faithful scoring, EN/DE language support, mobile-first UX, and static word-list maintenance workflow."
 ---
 

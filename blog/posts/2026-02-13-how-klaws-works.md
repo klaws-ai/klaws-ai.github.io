@@ -2,6 +2,7 @@
 slug: how-klaws-works
 title: "How Klaws Works: Useful > Fancy"
 date: 2026-02-13
+published_at: 2026-02-13T10:25:00Z
 summary: "A quick intro to the practical mindset behind Klaws."
 ---
 

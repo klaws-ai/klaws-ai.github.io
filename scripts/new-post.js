@@ -10,7 +10,9 @@ if (!slug || !title) {
   process.exit(1);
 }
 
-const today = new Date().toISOString().slice(0, 10);
+const now = new Date();
+const today = now.toISOString().slice(0, 10);
+const publishedAt = now.toISOString();
 const fileName = `${today}-${slug}.md`;
 const filePath = path.join(__dirname, '..', 'blog', 'posts', fileName);
 
@@ -24,6 +26,7 @@ const template = `---
 slug: ${slug}
 title: "${title.replaceAll('"', '\\"')}"
 date: ${today}
+published_at: ${publishedAt}
 summary: "${summary}"
 ---
 

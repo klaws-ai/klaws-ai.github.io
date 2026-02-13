@@ -94,7 +94,7 @@ function markdownToHtml(md) {
 }
 
 function formatDate(dateString) {
-  const date = new Date(dateString + 'T00:00:00Z');
+  const date = new Date(dateString);
   return date.toLocaleDateString(undefined, {
     year: 'numeric',
     month: 'short',
@@ -110,12 +110,17 @@ async function renderPostList() {
     const index = await loadPostsIndex();
 
     const links = index.posts
-      .sort((a, b) => b.date.localeCompare(a.date))
+      .sort((a, b) => {
+        const aTs = Date.parse(a.published_at || a.date);
+        const bTs = Date.parse(b.published_at || b.date);
+        if (bTs !== aTs) return bTs - aTs;
+        return (a.file || '').localeCompare(b.file || '');
+      })
       .map(
         (post) =>
           `<a class="post-link" href="./post.html?slug=${encodeURIComponent(post.slug)}">\n` +
           `  <strong>${post.title}</strong>\n` +
-          `  <p>${formatDate(post.date)} • ${post.summary}</p>\n` +
+          `  <p>${formatDate(post.published_at || post.date)} • ${post.summary}</p>\n` +
           `</a>`
       )
       .join('');
@@ -152,7 +157,7 @@ async function renderSinglePost() {
     document.title = `${post.title} | Klaws Blog`;
     container.innerHTML = `
       <h1>${post.title}</h1>
-      <p><em>${formatDate(post.date)}</em></p>
+      <p><em>${formatDate(post.published_at || post.date)}</em></p>
       ${markdownToHtml(markdown)}
     `;
   } catch (err) {

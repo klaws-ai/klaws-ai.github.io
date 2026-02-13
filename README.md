@@ -91,6 +91,8 @@ npm run new:post -- my-new-slug "My New Post Title"
 
 Edit the generated markdown file in `blog/posts/`.
 
+`published_at` must stay as an ISO timestamp (`YYYY-MM-DDTHH:mm:ssZ`) so same-day posts sort correctly.
+
 ### Rebuild index after edits
 
 ```bash
@@ -178,6 +180,7 @@ This repo includes `vercel.json` with static config.
 slug: my-post
 title: "My Post"
 date: 2026-02-13
+published_at: 2026-02-13T10:25:00Z
 summary: "One-line summary"
 ---
 ```
