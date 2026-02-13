@@ -21,13 +21,15 @@ code{background:#1a1f37;padding:.1rem .35rem;border-radius:6px}
 .wordle-board-wrap{margin:0 0 1rem}
 .wordle-board{display:grid;gap:.4rem;max-width:clamp(280px,86vw,340px)}
 .wordle-row{display:grid;grid-template-columns:repeat(5,1fr);gap:.4rem}
-.wordle-tile{aspect-ratio:1/1;border:2px solid #39406c;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:clamp(1.1rem,5.8vw,1.45rem);text-transform:uppercase;background:#121730}
+.wordle-tile{aspect-ratio:1/1;border:2px solid #39406c;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:clamp(1.1rem,5.8vw,1.45rem);text-transform:uppercase;background:#121730;transition:background-color .15s ease,border-color .15s ease,transform .08s ease}
+.wordle-row.active .wordle-tile{border-color:#6f7fd1}
+.wordle-row.active .wordle-tile:not(.correct):not(.present):not(.absent){background:#171f3f}
 .wordle-kb-wrap{max-width:min(100%,560px)}
 .wordle-kb-row{display:flex;justify-content:center;gap:.35rem;margin-bottom:.35rem}
 .wordle-key{min-width:30px;height:46px;padding:0 .4rem;border:0;border-radius:8px;background:#2d365f;color:#fff;font-weight:700;cursor:pointer;touch-action:manipulation}
 .wordle-key:hover{filter:brightness(1.08)}
 .wordle-key-wide{min-width:58px}
-.wordle-tile.absent,.wordle-key.absent{background:#a5323a;border-color:#a5323a}
-.wordle-tile.present,.wordle-key.present{background:#8d7a2c;border-color:#8d7a2c}
-.wordle-tile.correct,.wordle-key.correct{background:#2d8a53;border-color:#2d8a53}
+.wordle-tile.absent,.wordle-key.absent{background:#c53544;border-color:#c53544;color:#fff}
+.wordle-tile.present,.wordle-key.present{background:#c5a12d;border-color:#c5a12d;color:#101426}
+.wordle-tile.correct,.wordle-key.correct{background:#21a157;border-color:#21a157;color:#fff}
 @media (max-width:560px){.wordle-toolbar .btn{padding:.56rem .76rem;margin-right:0}.wordle-kb-row{gap:.28rem}.wordle-key{min-width:26px;height:42px;font-size:.82rem}.wordle-key-wide{min-width:52px}}

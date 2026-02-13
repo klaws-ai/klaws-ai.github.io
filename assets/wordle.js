@@ -58,6 +58,7 @@
     currentRow: 0,
     currentGuess: '',
     guesses: [],
+    evaluations: [],
     finished: false,
     keyStates: {}
   };
@@ -128,8 +129,14 @@
     for (let r = 0; r < MAX_GUESSES; r += 1) {
       const rowEl = boardEl.children[r];
       const guess = state.guesses[r] || (r === state.currentRow ? state.currentGuess : '');
+      const result = state.evaluations[r];
+      rowEl.classList.toggle('active', !state.finished && r === state.currentRow);
+
       for (let c = 0; c < WORD_LENGTH; c += 1) {
-        rowEl.children[c].textContent = guess[c] ? guess[c].toUpperCase() : '';
+        const tile = rowEl.children[c];
+        tile.textContent = guess[c] ? guess[c].toUpperCase() : '';
+        tile.classList.remove('correct', 'present', 'absent');
+        if (result && result[c]) tile.classList.add(result[c]);
       }
     }
   }
@@ -174,22 +181,18 @@
     });
   }
 
-  function paintRow(rowIndex, result) {
-    const rowEl = boardEl.children[rowIndex];
+  function applyGuessResult(rowIndex, result) {
     const guess = state.guesses[rowIndex];
-    for (let i = 0; i < WORD_LENGTH; i += 1) {
-      const tile = rowEl.children[i];
-      tile.classList.remove('correct', 'present', 'absent');
-      tile.classList.add(result[i]);
-      updateKeyState(guess[i], result[i]);
-    }
+    for (let i = 0; i < WORD_LENGTH; i += 1) updateKeyState(guess[i], result[i]);
     refreshKeyboardState();
+    updateBoard();
   }
 
   function resetRound(useRandom = false) {
     state.currentRow = 0;
     state.currentGuess = '';
     state.guesses = [];
+    state.evaluations = [];
     state.finished = false;
     state.keyStates = {};
     state.solution = useRandom ? pickRandomWord() : pickDailyWord();
@@ -216,7 +219,8 @@
 
     state.guesses[state.currentRow] = guess;
     const result = evaluateGuess(guess);
-    paintRow(state.currentRow, result);
+    state.evaluations[state.currentRow] = result;
+    applyGuessResult(state.currentRow, result);
 
     if (guess === state.solution) {
       state.finished = true;
@@ -289,8 +293,13 @@
   }
 
   document.addEventListener('keydown', (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.target instanceof HTMLSelectElement) return;
+
     const key = normalizePhysicalKey(e.key);
     if (!key) return;
+    if (key === 'ENTER' && e.repeat) return;
+
     e.preventDefault();
     onKey(key);
   });
