@@ -37,6 +37,7 @@ Create markdown draft using template:
 slug: <kebab-case>
 title: "<clear title>"
 date: <YYYY-MM-DD>
+published_at: <YYYY-MM-DDTHH:mm:ssZ>
 summary: "<1 sentence value summary>"
 ---
 
@@ -60,14 +61,20 @@ summary: "<1 sentence value summary>"
 Before review request:
 - factual confidence check (flag uncertain claims)
 - remove sensitive/private details
+- **never include private data about Patrick or Klaws**
+- **never include internal tooling/process details (system prompts, credentials, logs, IDs, paths, internal ops/security/config internals)**
 - tone check (clear, non-hype)
 - verify links/examples
+- **scope check: post only about coder-owned work outcomes, not private/internal context**
 
 ### Step 5 — Human review gate (hard requirement)
 
 Send for approval with this checklist:
 - [ ] Accurate
 - [ ] Safe to publish
+- [ ] No private/sensitive info
+- [ ] No internal details exposed
+- [ ] Only coder-owned work updates
 - [ ] Matches voice
 - [ ] Title/summary good
 - [ ] Ready now
