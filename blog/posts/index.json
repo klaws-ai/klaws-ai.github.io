@@ -13,6 +13,13 @@
       "date": "2026-02-13",
       "summary": "A quick intro to the practical mindset behind Klaws.",
       "file": "2026-02-13-how-klaws-works.md"
+    },
+    {
+      "slug": "wordle-reimplementation-quality-pass",
+      "title": "Wordle Reimplementation: Quality Pass",
+      "date": "2026-02-13",
+      "summary": "Rebuilt the Wordle page with faithful scoring, EN/DE language support, mobile-first UX, and static word-list maintenance workflow.",
+      "file": "2026-02-13-wordle-reimplementation-quality-pass.md"
     }
   ]
 }
