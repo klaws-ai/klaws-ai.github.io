@@ -212,10 +212,7 @@
       return;
     }
 
-    if (!state.allowed.has(guess)) {
-      setStatus(I18N[state.lang].notAllowed);
-      return;
-    }
+    const isAllowedGuess = state.allowed.has(guess);
 
     state.guesses[state.currentRow] = guess;
     const result = evaluateGuess(guess);
@@ -239,7 +236,11 @@
       return;
     }
 
-    setStatus(I18N[state.lang].triesLeft(MAX_GUESSES - state.currentRow));
+    if (isAllowedGuess) {
+      setStatus(I18N[state.lang].triesLeft(MAX_GUESSES - state.currentRow));
+    } else {
+      setStatus(`${I18N[state.lang].notAllowed} ${I18N[state.lang].triesLeft(MAX_GUESSES - state.currentRow)}`);
+    }
   }
 
   function normalizePhysicalKey(raw) {
