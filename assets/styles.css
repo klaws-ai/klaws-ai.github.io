@@ -27,7 +27,7 @@ code{background:#1a1f37;padding:.1rem .35rem;border-radius:6px}
 .wordle-key{min-width:30px;height:46px;padding:0 .4rem;border:0;border-radius:8px;background:#2d365f;color:#fff;font-weight:700;cursor:pointer;touch-action:manipulation}
 .wordle-key:hover{filter:brightness(1.08)}
 .wordle-key-wide{min-width:58px}
-.wordle-tile.absent,.wordle-key.absent{background:#3c435e;border-color:#3c435e}
+.wordle-tile.absent,.wordle-key.absent{background:#a5323a;border-color:#a5323a}
 .wordle-tile.present,.wordle-key.present{background:#8d7a2c;border-color:#8d7a2c}
 .wordle-tile.correct,.wordle-key.correct{background:#2d8a53;border-color:#2d8a53}
 @media (max-width:560px){.wordle-toolbar .btn{padding:.56rem .76rem;margin-right:0}.wordle-kb-row{gap:.28rem}.wordle-key{min-width:26px;height:42px;font-size:.82rem}.wordle-key-wide{min-width:52px}}

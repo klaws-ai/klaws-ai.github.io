@@ -5,7 +5,7 @@
 
   const I18N = {
     en: {
-      rules: 'Guess the 5-letter word in 6 tries. Green = correct spot, yellow = in word wrong spot, gray = not in word.',
+      rules: 'Guess the 5-letter word in 6 tries. Green = correct spot, yellow = in word wrong spot, red = not in word.',
       loading: 'Loading dictionary…',
       startDaily: 'Daily game loaded. Good luck!',
       startRandom: 'Random game loaded. Good luck!',
@@ -22,7 +22,7 @@
       ]
     },
     de: {
-      rules: 'Errate das Wort mit 5 Buchstaben in 6 Versuchen. Grün = richtige Position, Gelb = im Wort aber falsche Position, Grau = nicht im Wort.',
+      rules: 'Errate das Wort mit 5 Buchstaben in 6 Versuchen. Grün = richtige Position, Gelb = im Wort aber falsche Position, Rot = nicht im Wort.',
       loading: 'Wörterbuch wird geladen…',
       startDaily: 'Tagesspiel geladen. Viel Erfolg!',
       startRandom: 'Zufallsspiel geladen. Viel Erfolg!',
@@ -201,21 +201,24 @@
   }
 
   function submitGuess() {
-    if (state.currentGuess.length !== WORD_LENGTH) {
+    if (state.finished || state.currentRow >= MAX_GUESSES) return;
+
+    const guess = state.currentGuess;
+    if (guess.length !== WORD_LENGTH) {
       setStatus(I18N[state.lang].invalidLength);
       return;
     }
 
-    if (!state.allowed.has(state.currentGuess)) {
+    if (!state.allowed.has(guess)) {
       setStatus(I18N[state.lang].notAllowed);
       return;
     }
 
-    state.guesses[state.currentRow] = state.currentGuess;
-    const result = evaluateGuess(state.currentGuess);
+    state.guesses[state.currentRow] = guess;
+    const result = evaluateGuess(guess);
     paintRow(state.currentRow, result);
 
-    if (state.currentGuess === state.solution) {
+    if (guess === state.solution) {
       state.finished = true;
       setStatus(I18N[state.lang].win(state.currentRow + 1));
       updateBoard();
@@ -229,9 +232,10 @@
     if (state.currentRow >= MAX_GUESSES) {
       state.finished = true;
       setStatus(I18N[state.lang].lose(state.solution));
-    } else {
-      setStatus(I18N[state.lang].triesLeft(MAX_GUESSES - state.currentRow));
+      return;
     }
+
+    setStatus(I18N[state.lang].triesLeft(MAX_GUESSES - state.currentRow));
   }
 
   function normalizePhysicalKey(raw) {
@@ -248,7 +252,7 @@
   }
 
   function onKey(rawKey) {
-    if (state.finished) return;
+    if (state.finished || state.currentRow >= MAX_GUESSES) return;
     const key = rawKey.toUpperCase();
 
     if (key === 'ENTER') {
@@ -257,8 +261,10 @@
     }
 
     if (key === 'BACKSPACE') {
-      state.currentGuess = state.currentGuess.slice(0, -1);
-      updateBoard();
+      if (state.currentGuess.length > 0) {
+        state.currentGuess = state.currentGuess.slice(0, -1);
+        updateBoard();
+      }
       return;
     }
 
