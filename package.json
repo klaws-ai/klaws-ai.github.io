@@ -1,0 +1,11 @@
+{
+  "name": "klaws-site",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Lightweight static website for Klaws",
+  "scripts": {
+    "build": "node scripts/build-blog-index.js",
+    "new:post": "node scripts/new-post.js",
+    "serve": "python3 -m http.server 8080"
+  }
+}

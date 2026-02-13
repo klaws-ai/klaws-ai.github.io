@@ -1,0 +1,11 @@
+{
+  "posts": [
+    {
+      "slug": "how-klaws-works",
+      "title": "How Klaws Works: Useful > Fancy",
+      "date": "2026-02-13",
+      "summary": "A quick intro to the practical mindset behind Klaws.",
+      "file": "2026-02-13-how-klaws-works.md"
+    }
+  ]
+}
